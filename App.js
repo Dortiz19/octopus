@@ -1,35 +1,92 @@
-import './App.css'; 
-import React, { Component } from 'react';
-import Header from './Header';
-import TodoList from './TodoList';
-import SubmitForm from './Submit';
+import React from 'react';
+import './App.css';
 
-
-class App extends Component {
-  state = { tasks: ['Task 1 ', 'Task 2 ', 'Task 3 '] };
-
-  handleSubmit = task => {
-    this.setState({tasks: [...this.state.tasks, task]});
-}
-
-  handleDelete = (index) => {
-    const newArr = [...this.state.tasks];
-    newArr.splice(index, 1);
-    this.setState({tasks: newArr});
-}
-
-  render () {
+function Todo({ todo, index, completeTodo, removeTodo }) {
     return (
-      <div className='wrapper'>
-        <div>
-          <Header numTodos={this.state.tasks.length} />
-          <TodoList tasks={this.state.tasks} onDelete={this.handleDelete} />
-          <SubmitForm onFormSubmit={this.handleSubmit} />
-        </div>
+        <div
+      className="todo"
+      style={{ textDecoration: todo.isCompleted ? "line-through" : "" }}
+    >
+      {todo.text}
+      <div>
+        <button onClick={() => completeTodo(index)}>Complete</button>
+        <button onClick={() => removeTodo(index)}>x</button>
       </div>
-    )
-  }
+    </div>
+    );
+};
+
+function TodoForm({ addTodo }) {
+    const [value, setValue] = React.useState("");
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        if (!value) return;
+        addTodo(value);
+        setValue("");
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <input
+                type="text"
+                className="input"
+                value={value}
+                onChange={e => setValue(e.target.value)}
+            />
+        </form>
+    );
 }
 
+function App() {
+        const [todos, setTodos] = React.useState([
+            {
+                text: "Learn about React",
+                isCompleted: false
+            },
+            {
+                text: "Meet friend for lunch",
+                isCompleted: false
+            },
+            {
+                text: "Build really cool todo app",
+                isCompleted: false
+            }
+        ]);
 
-export default App;
+        const addTodo = text => {
+            const newTodos = [...todos, { text }];
+            setTodos(newTodos);
+        };
+
+        const completeTodo = index => {
+            const newTodos = [...todos];
+            newTodos[index].isCompleted = true;
+            setTodos(newTodos);
+        };
+
+        const removeTodo = index => {
+            const newTodos = [...todos];
+            newTodos.splice(index, 1);
+            setTodos(newTodos);
+          };
+
+        return (
+            <div className="app">
+                <div className="todo-list">
+                    {todos.map((todo, index) => (
+                        <Todo
+                            key={index}
+                            index={index}
+                            todo={todo}
+                            completeTodo={completeTodo}
+                            removeTodo={removeTodo}
+                        />
+                    ))}
+                    <TodoForm addTodo={addTodo} />
+                </div>
+            </div>
+        );
+    }
+
+    export default App;
